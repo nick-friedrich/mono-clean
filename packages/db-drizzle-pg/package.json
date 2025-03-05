@@ -1,0 +1,28 @@
+{
+  "name": "@shared/db-drizzle-pg",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "drizzle-kit": "drizzle-kit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "main": "./src/index.ts",
+  "dependencies": {
+    "drizzle-orm": "^0.40.0",
+    "pg": "8.13.3",
+    "dotenv": "16.4.7"
+  },
+  "devDependencies": {
+    "@shared/config-vitest": "workspace:*",
+    "drizzle-kit": "^0.30.5",
+    "tsx": "4.19.3",
+    "@types/pg": "^8.11.11",
+    "vitest": "^3.0.7"
+  }
+}
