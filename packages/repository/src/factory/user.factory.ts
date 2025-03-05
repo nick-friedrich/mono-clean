@@ -1,6 +1,6 @@
-
 import { AbstractUserRepository } from '../interface';
 import { UserDrizzleRepository } from '../drizzle';
+import { UserMockRepository } from '../mock';
 
 type RepositoryImplementation = 'drizzle' | 'mock';
 
@@ -9,7 +9,7 @@ export function getUserRepository(implementation: RepositoryImplementation = 'dr
     case 'drizzle':
       return new UserDrizzleRepository();
     case 'mock':
-      throw new Error('Mock implementation not yet available');
+      return new UserMockRepository();
     default:
       throw new Error(`Unknown implementation: ${implementation}`);
   }
