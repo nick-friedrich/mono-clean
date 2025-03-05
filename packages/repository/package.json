@@ -13,7 +13,8 @@
     ".": "./src/index.ts",
     "./interface": "./src/interface/index.ts",
     "./drizzle": "./src/drizzle/index.ts",
-    "./factory": "./src/factory/index.ts"
+    "./factory": "./src/factory/index.ts",
+    "./types": "./src/types/index.ts"
   },
   "dependencies": {
     "@shared/db-drizzle-pg": "workspace:*",

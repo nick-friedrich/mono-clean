@@ -5,9 +5,9 @@ import {
   UserSignUpWithEmailAndPasswordSchema,
   User,
   UserSafe
-} from '../user.interface';
+} from '../user.types';
 
-describe('User Interfaces and Schemas', () => {
+describe('User Interface Tests', () => {
   describe('User Schema', () => {
     it('should validate a valid user object', () => {
       const validUser = {

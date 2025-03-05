@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserDrizzleRepository } from '../user.drizzle';
-import { User } from '../../interface';
+import { User } from '../../types';
 
 // Use vi.hoisted to define mock variables before they're used in vi.mock
 const mockUsers = [

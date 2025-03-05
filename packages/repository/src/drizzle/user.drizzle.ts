@@ -1,7 +1,8 @@
 import { db } from "@shared/db-drizzle-pg";
 import { usersTable } from "@shared/db-drizzle-pg/src/schema/users";
 import { eq } from "drizzle-orm";
-import { AbstractUserRepository, User, UserSafe } from "../interface";
+import { AbstractUserRepository } from "../interface";
+import { User, UserSafe } from "../types";
 
 /**
  * User repository implementation for Drizzle PostgreSQL
@@ -75,6 +76,11 @@ export class UserDrizzleRepository extends AbstractUserRepository {
     };
   }
 
+  /**
+   * Update a user
+   * @param user - The user to update
+   * @returns The updated user
+   */
   async update(user: User): Promise<UserSafe> {
     const updatedUser = await db.update(usersTable).set({
       name: user.name,
