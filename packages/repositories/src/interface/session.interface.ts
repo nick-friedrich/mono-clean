@@ -1,4 +1,11 @@
-import { Session, SessionUpdateInput } from "../types/session.types";
+import { Session, SessionCreateInput, SessionUpdateInput } from "../types/session.types";
+
+export class SessionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SessionError';
+  }
+}
 
 /**
  * Session repository interface
@@ -23,7 +30,7 @@ export abstract class SessionRepository {
    * @param session - The session to create
    * @returns The created session
    */
-  abstract create(session: Session): Promise<Session>;
+  abstract create(session: SessionCreateInput): Promise<Session>;
 
   /**
    * Update a session

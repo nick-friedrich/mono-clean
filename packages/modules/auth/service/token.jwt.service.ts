@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { TokenPayload, TokenResult, RefreshTokenResult, TokenService } from './token.interface';
-import { Session } from '@shared/repository';
+import { Session, SessionCreateInput } from '@shared/repository';
 import { SessionRepository } from '@shared/repository/interface';
 
 /**
@@ -99,9 +99,8 @@ export class JwtTokenService implements TokenService {
 
     // If a session repository is provided, create a session record
     if (this.sessionRepository) {
-      const sessionData: Session = {
+      const sessionData: SessionCreateInput = {
         // If your repository generates the id, you can leave it empty or generate one with uuid
-        id: '',
         userId: payload.userId,
         refreshToken,
         userAgent: (payload as any).userAgent || 'unknown',
@@ -109,8 +108,6 @@ export class JwtTokenService implements TokenService {
         expiresAt: new Date(Date.now() + (refreshExpiresIn || 0) * 1000),
         isValid: true,
         lastUsedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
       await this.sessionRepository.create(sessionData);
     }

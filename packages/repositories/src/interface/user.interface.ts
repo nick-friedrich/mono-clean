@@ -1,5 +1,12 @@
 import { User, UserCreateInput, UserSafe, UserUpdateInput } from '../types';
 
+export class UserError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UserError';
+  }
+}
+
 /**
  * User repository
  * This is used for the implementation of the user repository for specific databases/orms

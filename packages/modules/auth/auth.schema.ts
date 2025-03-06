@@ -9,7 +9,7 @@ export type { User, UserSafe, UserUpdateInput };
  */
 export const UserLoginWithEmailAndPasswordInputSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string(),
 });
 
 /**
@@ -22,6 +22,7 @@ export type UserLoginWithEmailAndPasswordInput = z.infer<typeof UserLoginWithEma
  */
 export const UserSignUpWithEmailAndPasswordInputSchema = UserLoginWithEmailAndPasswordInputSchema.extend({
   name: z.string().min(1),
+  password: z.string().min(8),
 });
 
 /**

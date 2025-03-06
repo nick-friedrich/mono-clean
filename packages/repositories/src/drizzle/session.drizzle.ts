@@ -1,8 +1,8 @@
 import { eq, lt } from "drizzle-orm";
 import { sessionsTable } from "@shared/db-drizzle-pg/src/schema/sessions";
 import { db } from "@shared/db-drizzle-pg";
-import { Session } from "../types/session.types";
-import { SessionRepository } from "../interface/session.interface";
+import { Session, SessionCreateInput, SessionUpdateInput } from "../types/session.types";
+import { SessionError, SessionRepository } from "../interface/session.interface";
 
 
 export class SessionDrizzleRepository extends SessionRepository {
@@ -67,8 +67,12 @@ export class SessionDrizzleRepository extends SessionRepository {
    * @param session - The session to create
    * @returns The created session
    */
-  async create(session: Session): Promise<Session> {
+  async create(session: SessionCreateInput): Promise<Session> {
     const createdSession = await db.insert(sessionsTable).values(session).returning();
+
+    if (!createdSession[0]) {
+      throw new SessionError('Failed to create session');
+    }
 
     return {
       id: createdSession[0].id,
@@ -89,8 +93,15 @@ export class SessionDrizzleRepository extends SessionRepository {
    * @param session - The session to update
    * @returns The updated session
    */
-  async update(session: Session): Promise<Session> {
-    const updatedSession = await db.update(sessionsTable).set(session).where(eq(sessionsTable.id, session.id)).returning();
+  async update(session: SessionUpdateInput): Promise<Session> {
+    const updatedSession = await db.update(sessionsTable).set({
+      ...session,
+      updated_at: new Date(),
+    }).where(eq(sessionsTable.id, session.id!)).returning();
+
+    if (!updatedSession[0]) {
+      throw new SessionError('Failed to update session');
+    }
 
     return {
       id: updatedSession[0].id,

@@ -93,17 +93,24 @@ export class AuthService {
     // Check if user exists
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new Error("User already exists");
+      throw new AuthServiceError("User already exists");
     }
 
     // Hash password
     const hashedPassword = await PasswordService.hash(password);
 
+    if (!name) {
+      name = email.split('@')[0];
+      if (!name) {
+        throw new AuthServiceError("Invalid name");
+      }
+    }
+
     // Create user
     const newUser = await this.userRepository.create({
       email,
       password: hashedPassword,
-      name: name || email.split('@')[0]
+      name: name
     });
 
     // Sign in the new user (reuse logic)

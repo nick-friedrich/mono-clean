@@ -18,3 +18,11 @@ export type Session = z.infer<typeof SessionSchema>;
 export const SessionUpdateInputSchema = SessionSchema.partial();
 
 export type SessionUpdateInput = z.infer<typeof SessionUpdateInputSchema>;
+
+export const SessionCreateInputSchema = SessionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type SessionCreateInput = z.infer<typeof SessionCreateInputSchema>;

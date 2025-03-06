@@ -1,7 +1,7 @@
 import { db } from "@shared/db-drizzle-pg";
 import { usersTable } from "@shared/db-drizzle-pg/src/schema/users";
 import { eq } from "drizzle-orm";
-import { UserRepository } from "../interface";
+import { UserError, UserRepository } from "../interface";
 import { User, UserSafe, UserUpdateInput } from "../types";
 
 /**
@@ -27,6 +27,8 @@ export class UserDrizzleRepository extends UserRepository {
       name: user.name,
       email: user.email,
       password: user.password || undefined,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
     };
   }
 
@@ -49,6 +51,8 @@ export class UserDrizzleRepository extends UserRepository {
       name: user.name,
       email: user.email,
       password: user.password || undefined,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
     };
   }
 
@@ -66,12 +70,21 @@ export class UserDrizzleRepository extends UserRepository {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
+      created_at: usersTable.created_at,
+      updated_at: usersTable.updated_at,
     })
+
+    if (!newUser[0]) {
+      throw new UserError('Failed to create user');
+    }
 
     return {
       id: newUser[0].id,
       name: newUser[0].name,
       email: newUser[0].email,
+      createdAt: newUser[0].created_at,
+      updatedAt: newUser[0].updated_at,
+      deletedAt: undefined,
     };
   }
 
@@ -88,12 +101,21 @@ export class UserDrizzleRepository extends UserRepository {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
+      created_at: usersTable.created_at,
+      updated_at: usersTable.updated_at,
     })
+
+    if (!updatedUser[0]) {
+      throw new UserError('Failed to update user');
+    }
 
     return {
       id: updatedUser[0].id,
       name: updatedUser[0].name,
       email: updatedUser[0].email,
+      createdAt: updatedUser[0].created_at,
+      updatedAt: updatedUser[0].updated_at,
+      deletedAt: undefined,
     };
   }
 

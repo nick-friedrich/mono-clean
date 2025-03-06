@@ -60,9 +60,9 @@ export class AuthModule {
   /**
    * Get the singleton instance of AuthModule
    */
-  static getInstance(config: AuthModuleConfig): AuthModule {
+  static getInstance(config: AuthModuleConfig, userRepository?: UserRepository, tokenService?: TokenService): AuthModule {
     if (!AuthModule.instance) {
-      AuthModule.instance = new AuthModule(config);
+      AuthModule.instance = new AuthModule(config, userRepository, tokenService);
     }
     return AuthModule.instance;
   }

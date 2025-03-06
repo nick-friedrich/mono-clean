@@ -1,6 +1,6 @@
 // src/mock/session.repository.ts
-import { SessionRepository } from '../interface/session.interface';
-import { Session } from '../types/session.types';
+import { SessionError, SessionRepository } from '../interface/session.interface';
+import { Session, SessionCreateInput } from '../types/session.types';
 import { v4 as uuidv4 } from 'uuid';
 
 export class SessionMockRepository extends SessionRepository {
@@ -52,12 +52,12 @@ export class SessionMockRepository extends SessionRepository {
    * @param session - The session data.
    * @returns The created session.
    */
-  async create(session: Session): Promise<Session> {
+  async create(session: SessionCreateInput): Promise<Session> {
     const newSession: Session = {
+      id: uuidv4(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       ...session,
-      id: session.id || uuidv4(),
-      createdAt: session.createdAt || new Date(),
-      updatedAt: session.updatedAt || new Date(),
     };
     this.sessions.push(newSession);
     return { ...newSession };
@@ -71,7 +71,7 @@ export class SessionMockRepository extends SessionRepository {
   async update(session: Session): Promise<Session> {
     const index = this.sessions.findIndex(s => s.id === session.id);
     if (index === -1) {
-      throw new Error(`Session with id ${session.id} not found`);
+      throw new SessionError(`Session with id ${session.id} not found`);
     }
     // Merge the new data into the existing session and update updatedAt.
     const updatedSession: Session = {

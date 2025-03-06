@@ -1,0 +1,26 @@
+{
+  "name": "api-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@shared/module": "workspace:*",
+    "@shared/repository": "workspace:*",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@shared/config-typescript": "workspace:*",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3"
+  },
+  "keywords": [],
+  "author": "Nick Friedrich"
+}
