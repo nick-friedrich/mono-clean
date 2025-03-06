@@ -32,7 +32,7 @@ export type UserSafe = z.infer<typeof UserSchemaSafe>;
 /**
  * User create input
  */
-export const UserCreateInputSchema = UserSchema.omit({ id: true });
+export const UserCreateInputSchema = UserSchema.omit({ id: true, createdAt: true, updatedAt: true, deletedAt: true });
 
 /**
  * Type of the user create input
