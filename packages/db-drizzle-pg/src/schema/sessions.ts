@@ -8,15 +8,15 @@ import { relations } from "drizzle-orm";
  */
 export const sessionsTable = pgTable("sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => usersTable.id, { onDelete: "cascade" }),
-  refreshToken: text("refresh_token"),
-  userAgent: varchar("user_agent", { length: 255 }),
-  ipAddress: varchar("ip_address", { length: 45 }), // Supports IPv6
+  userId: uuid("user_id").references(() => usersTable.id, { onDelete: "cascade" }).notNull(),
+  refreshToken: text("refresh_token").notNull(),
+  userAgent: varchar("user_agent", { length: 255 }).notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }).notNull(), // Supports IPv6
   expiresAt: timestamp("expires_at").notNull(),
   isValid: boolean("is_valid").notNull().default(true),
   lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
   ...timestamps
-})
+});
 
 export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
   user: one(usersTable, {
