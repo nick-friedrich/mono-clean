@@ -1,4 +1,4 @@
-import { User, UserSafe, UserSignUpWithEmailAndPasswordInput } from '../types';
+import { User, UserSafe, UserUpdateInput } from '../types';
 
 /**
  * User repository
@@ -25,14 +25,14 @@ export abstract class UserRepository {
    * @param user - The user to create
    * @returns The created user
    */
-  abstract create(user: UserSignUpWithEmailAndPasswordInput): Promise<UserSafe>;
+  abstract create(user: User): Promise<UserSafe>;
 
   /**
    * Update a user
    * @param user - The user to update
    * @returns The updated user
    */
-  abstract update(user: User): Promise<UserSafe>;
+  abstract update(user: UserUpdateInput): Promise<UserSafe>;
 
   /**
    * Delete a user

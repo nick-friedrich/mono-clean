@@ -2,7 +2,7 @@ import { db } from "@shared/db-drizzle-pg";
 import { usersTable } from "@shared/db-drizzle-pg/src/schema/users";
 import { eq } from "drizzle-orm";
 import { UserRepository } from "../interface";
-import { User, UserSafe, UserSignUpWithEmailAndPasswordInput, UserUpdateInput } from "../types";
+import { User, UserSafe, UserUpdateInput } from "../types";
 
 /**
  * User repository implementation for Drizzle PostgreSQL
@@ -57,7 +57,7 @@ export class UserDrizzleRepository extends UserRepository {
    * @param user - The user to create
    * @returns The created user
    */
-  async create(user: UserSignUpWithEmailAndPasswordInput): Promise<UserSafe> {
+  async create(user: User): Promise<UserSafe> {
     const newUser = await db.insert(usersTable).values({
       name: user.name,
       email: user.email,
