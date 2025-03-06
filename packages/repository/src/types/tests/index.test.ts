@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   UserSchema,
   UserSchemaSafe,
-  UserSignUpWithEmailAndPasswordSchema,
+  UserSignUpWithEmailAndPasswordInputSchema,
   User,
   UserSafe
 } from '../user.types';
@@ -98,7 +98,7 @@ describe('User Interface Tests', () => {
         password: 'password123'
       };
 
-      const result = UserSignUpWithEmailAndPasswordSchema.safeParse(validSignUp);
+      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(validSignUp);
       expect(result.success).toBe(true);
     });
 
@@ -109,7 +109,7 @@ describe('User Interface Tests', () => {
         email: 'test@example.com'
       };
 
-      const result = UserSignUpWithEmailAndPasswordSchema.safeParse(signUpWithoutPassword);
+      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(signUpWithoutPassword);
       expect(result.success).toBe(false);
     });
 
@@ -121,7 +121,7 @@ describe('User Interface Tests', () => {
         password: '123' // Too short
       };
 
-      const result = UserSignUpWithEmailAndPasswordSchema.safeParse(signUpWithWeakPassword);
+      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(signUpWithWeakPassword);
       expect(result.success).toBe(false);
     });
   });
