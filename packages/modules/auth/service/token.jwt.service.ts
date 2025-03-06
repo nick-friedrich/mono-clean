@@ -1,5 +1,5 @@
 // packages/modules/auth/service/token/jwt.token-service.ts
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { TokenPayload, TokenResult, RefreshTokenResult, TokenService } from './token.interface';
 
 /**
@@ -77,15 +77,20 @@ export class JwtTokenService implements TokenService {
     // Generate access token
     const tokenResult = await this.generateToken(payload);
 
-    // Generate refresh token (longer lived)
-    const refreshExpirationSeconds = typeof this.config.refreshExpiresIn === 'string'
-      ? this.parseExpirationString(this.config.refreshExpiresIn as string)
-      : this.config.refreshExpiresIn as number;
+    const refreshExpiresIn =
+      typeof this.config.refreshExpiresIn === 'string'
+        ? this.parseExpirationString(this.config.refreshExpiresIn)
+        : this.config.refreshExpiresIn;
+
+    const signOptions: SignOptions = {
+      expiresIn: refreshExpiresIn
+    };
+
 
     const refreshToken = jwt.sign(
       { userId: payload.userId, type: 'refresh' },
       this.config.refreshSecret as string,
-      { expiresIn: this.config.refreshExpiresIn }
+      signOptions
     );
 
     return {
@@ -129,13 +134,17 @@ export class JwtTokenService implements TokenService {
   private parseExpirationString(expiration: string): number {
     const unit = expiration.slice(-1);
     const value = parseInt(expiration.slice(0, -1), 10);
-
+    if (isNaN(value)) {
+      // You might want to throw an error or return a default value here.
+      return 3600; // Default to 1 hour
+    }
     switch (unit) {
       case 's': return value;
       case 'm': return value * 60;
       case 'h': return value * 60 * 60;
       case 'd': return value * 24 * 60 * 60;
-      default: return 3600; // Default to 1 hour
+      default: return 3600;
     }
   }
+
 }

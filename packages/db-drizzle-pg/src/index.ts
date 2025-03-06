@@ -3,12 +3,14 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 import * as UserSchema from './schema/users';
+import * as SessionSchema from './schema/sessions';
 
 // Root .env
 dotenv.config({ path: '../../.env' });
 
 const schema = {
   ...UserSchema,
+  ...SessionSchema,
 };
 
 // Configuration type
