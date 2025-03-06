@@ -1,15 +1,15 @@
+# Clean Monorepo Architecture
+
 Create a scalable monorepo architecture with pnpm workspaces.
 For the mono repo we will use turborepo.
 
-Packages: Contain the shared code for the apps.
+#### Packages: Contain the shared code for the apps.
 
 - `@shared/config-typescript` - Shared TypeScript configurations for all packages and apps
 - `@shared/db-drizzle-pg` - Drizzle ORM for PostgreSQL
-- `@shared/repositories` - Layer that contains the unspecific data access logic
-- `@shared/repositories-drizzle-pg` - Repository layer that contains the data access logic for the PostgreSQL database
-- `@shared/repositories-...` - Other repository implementations
+- `@shared/repositories` - Layer of abstraction for the data access logic, contains the interface and the implementation for the database (for now Postgres with Drizzle and a Mock implementation)
+- `@shared/modules` - Layer of abstraction for the business logic, contains the interface and the implementation for the business logic
 
-Apps: Contain the code for the apps.
+#### Apps: Contain the code for the apps.
 
-- `@apps/api-hono` - API layer using Hono
-- `@apps/web-react-router-v7` - Web layer using React Router v7
+- `@apps/api-express` - API using Express
