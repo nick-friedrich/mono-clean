@@ -4,6 +4,7 @@ import { db } from "@shared/db-drizzle-pg";
 import { sessionsTable } from "@shared/db-drizzle-pg/src/schema/sessions";
 import { eq } from "drizzle-orm";
 import { Session } from '../types/session.types';
+import type { Mock } from 'vitest';
 
 // Mock dependencies
 vi.mock('@shared/db-drizzle-pg', () => {
@@ -167,6 +168,17 @@ describe('SessionDrizzleRepository', () => {
         lastUsedAt: mockSession.lastUsedAt,
       });
     });
+
+    it('should throw an error when the session is not created', async () => {
+      // Cast db.insert to a Mock type so we can call mockReturnValueOnce
+      (db.insert as unknown as Mock).mockReturnValueOnce({
+        values: vi.fn().mockReturnValueOnce({
+          returning: vi.fn().mockResolvedValueOnce([])
+        })
+      });
+
+      await expect(repository.create(mockSession)).rejects.toThrow('Failed to create session');
+    });
   });
 
   describe('update', () => {
@@ -190,6 +202,19 @@ describe('SessionDrizzleRepository', () => {
       expect(updatedSession.id).toBe(mockSession.id);
       expect(updatedSession.userId).toBe(mockSession.userId);
       expect(updatedSession.refreshToken).toBe(mockSession.refreshToken);
+    });
+
+    it('should throw an error when the session is not updated', async () => {
+      // Create a chain of mocks for the update method:
+      // db.update(...).set(...).where(...).returning() -> [] (empty array)
+      const returningMock = vi.fn().mockResolvedValueOnce([]);
+      const whereMock = vi.fn().mockReturnValueOnce({ returning: returningMock });
+      const setMock = vi.fn().mockReturnValueOnce({ where: whereMock });
+
+      // Cast db.update as a Mock so we can override its return value
+      (db.update as unknown as Mock).mockReturnValueOnce({ set: setMock });
+
+      await expect(repository.update(mockSession)).rejects.toThrow('Failed to update session');
     });
   });
 

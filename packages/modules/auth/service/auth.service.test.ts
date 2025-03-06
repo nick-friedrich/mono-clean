@@ -128,6 +128,59 @@ describe('AuthService', () => {
       });
       verifySpy.mockRestore();
     });
+
+    it('should compute name from email if name is not provided', async () => {
+      // Simulate that no user exists yet.
+      userRepository.findByEmail.mockResolvedValueOnce(null);
+      // When creating the user, return an object with the computed name.
+      userRepository.create.mockResolvedValue({
+        id: 'new-user',
+        email: 'testuser@test.com',
+        password: 'hashed-pass',
+        name: 'testuser'
+      });
+      // After creation, simulate that signIn returns the new user.
+      userRepository.findByEmail.mockResolvedValue({
+        id: 'new-user',
+        email: 'testuser@test.com',
+        password: 'hashed-pass',
+        name: 'testuser',
+      });
+      // Stub password verification to succeed.
+      const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
+      // Assume tokenService supports refresh tokens.
+      tokenService.generateRefreshToken = vi.fn().mockResolvedValue({
+        token: 'new-access-token',
+        expiresAt: Date.now() + 3000,
+        refreshToken: 'new-refresh-token',
+      });
+
+      const result = await authService.signUpWithEmailAndPassword(
+        'testuser@test.com',
+        'pass'
+        // Note: no name is provided.
+      );
+
+      // Check that create was called with the computed name from email.split('@')[0]
+      expect(userRepository.create).toHaveBeenCalledWith({
+        email: 'testuser@test.com',
+        password: expect.stringContaining('argon2'), // assuming hash includes 'argon2'
+        name: 'testuser',
+      });
+      expect(result.user.name).toBe('testuser');
+      verifySpy.mockRestore();
+    });
+
+    it('should throw an error if computed name is empty', async () => {
+      // Simulate that no user exists.
+      userRepository.findByEmail.mockResolvedValueOnce(null);
+
+      // Call with an email that has an empty prefix (e.g. "@test.com")
+      await expect(
+        authService.signUpWithEmailAndPassword('@test.com', 'pass')
+      ).rejects.toThrow("Invalid name");
+    });
+
   });
 
   describe('signUpWithEmailAndPassword', () => {

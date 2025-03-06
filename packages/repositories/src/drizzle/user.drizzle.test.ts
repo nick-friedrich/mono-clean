@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserDrizzleRepository } from './user.drizzle';
 import { User, UserUpdateInput } from '../types/user.types';
+import { UserError } from '../interface/user.interface';
 
 // Use vi.hoisted to define mock variables before they're used in vi.mock
 const mockUsers = [
@@ -263,6 +264,15 @@ describe('UserDrizzleRepository', () => {
         email: 'new@example.com'
       });
     });
+
+    it('should throw an error when the user is not created', async () => {
+      // Simulate the insert operation returning an empty array (no record created)
+      returningMock.mockResolvedValueOnce([]);
+
+      // Using the first mock user (with a string password) to avoid type issues.
+      await expect(repository.create(mockUsers[0] as User)).rejects.toThrow('Failed to create user');
+    });
+
   });
 
   describe('update', () => {
@@ -342,6 +352,13 @@ describe('UserDrizzleRepository', () => {
         name: 'Updated User',
         email: 'test@example.com'
       });
+    });
+
+    it('should throw an error when the user is not updated', async () => {
+      // Simulate the update operation returning an empty array (no record updated)
+      returningMock.mockResolvedValueOnce([]);
+
+      await expect(repository.update(mockUsers[0] as UserUpdateInput)).rejects.toThrow('Failed to update user');
     });
   });
 
