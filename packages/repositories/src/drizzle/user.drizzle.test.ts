@@ -8,19 +8,25 @@ const mockUsers = [
     id: '1',
     name: 'Test User',
     email: 'test@example.com',
-    password: 'password123'
+    password: 'password123',
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: '2',
     name: 'Another User',
     email: 'another@example.com',
-    password: 'anotherpassword'
+    password: 'anotherpassword',
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: '3',
     name: 'User No Password',
     email: 'nopassword@example.com',
-    password: null
+    password: null,
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
@@ -97,6 +103,7 @@ describe('UserDrizzleRepository', () => {
       expect(dbMock.query.usersTable.findFirst).toHaveBeenCalledWith({
         where: 'mocked-eq-condition'
       });
+      // Expect only the fields returned by repository (without createdAt/updatedAt)
       expect(user).toEqual({
         id: '1',
         name: 'Test User',
@@ -111,6 +118,7 @@ describe('UserDrizzleRepository', () => {
 
       const user = await repository.findById('3');
 
+      // Expect that password is normalized to undefined and no createdAt/updatedAt are returned
       expect(user).toEqual({
         id: '3',
         name: 'User No Password',
@@ -182,32 +190,37 @@ describe('UserDrizzleRepository', () => {
 
   describe('create', () => {
     it('should create a user and return the user data without password', async () => {
-      // Setup mock to return created user
+      // Setup mock to return created user (repository returns no createdAt/updatedAt)
       returningMock.mockResolvedValueOnce([{
         id: '3',
         name: 'New User',
-        email: 'new@example.com'
+        email: 'new@example.com',
+        password: 'newpassword',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }]);
 
       const newUser: User = {
         id: '3',
         name: 'New User',
         email: 'new@example.com',
-        password: 'newpassword'
+        password: 'newpassword',
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await repository.create(newUser);
 
       expect(dbMock.insert).toHaveBeenCalled();
 
-      // Check that expected properties are in the values call
-      // Note: The actual implementation doesn't include id in the values call
+      // Check that expected properties are passed in the values call
       const firstCallArg = valuesMock.mock.calls[0][0];
       expect(firstCallArg).toBeDefined();
       expect(firstCallArg.name).toBe('New User');
       expect(firstCallArg.email).toBe('new@example.com');
       expect(firstCallArg.password).toBe('newpassword');
 
+      // Repository returns only id, name, and email (without password, createdAt, updatedAt)
       expect(result).toEqual({
         id: '3',
         name: 'New User',
@@ -217,7 +230,7 @@ describe('UserDrizzleRepository', () => {
     });
 
     it('should handle undefined password when creating a user', async () => {
-      // Setup mock to return created user
+      // Setup mock to return created user (without createdAt/updatedAt)
       returningMock.mockResolvedValueOnce([{
         id: '3',
         name: 'New User',
@@ -228,15 +241,16 @@ describe('UserDrizzleRepository', () => {
         id: '3',
         name: 'New User',
         email: 'new@example.com',
-        // No password property to test the undefined branch
+        // No password property provided
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await repository.create(newUser);
 
       expect(dbMock.insert).toHaveBeenCalled();
 
-      // Check that expected properties are in the values call
-      // Note: The actual implementation doesn't include id in the values call
+      // Check that the values call does not include password
       const firstCallArg = valuesMock.mock.calls[0][0];
       expect(firstCallArg).toBeDefined();
       expect(firstCallArg.name).toBe('New User');
@@ -253,31 +267,33 @@ describe('UserDrizzleRepository', () => {
 
   describe('update', () => {
     it('should update a user and return the user data without password', async () => {
-      // Setup mock to return updated user
+      // Setup mock to return updated user (repository returns no createdAt/updatedAt)
       returningMock.mockResolvedValueOnce([{
         id: '1',
         name: 'Updated User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }]);
 
       const userToUpdate: User = {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
-        password: 'updatedpassword'
+        password: 'updatedpassword',
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await repository.update(userToUpdate as UserUpdateInput);
 
       expect(dbMock.update).toHaveBeenCalled();
 
-      // Check that expected properties are in the set call
-      // Note: According to the implementation, password is not included in the update
+      // Check that the set call does not include password
       const firstCallArg = setMock.mock.calls[0][0];
       expect(firstCallArg).toBeDefined();
       expect(firstCallArg.name).toBe('Updated User');
       expect(firstCallArg.email).toBe('test@example.com');
-      // Password is not set in the actual implementation
       expect(firstCallArg.password).toBeUndefined();
 
       expect(whereMock).toHaveBeenCalledWith('mocked-eq-condition');
@@ -292,25 +308,29 @@ describe('UserDrizzleRepository', () => {
     });
 
     it('should handle undefined password when updating a user', async () => {
-      // Setup mock to return updated user
+      // Setup mock to return updated user (repository returns no createdAt/updatedAt)
       returningMock.mockResolvedValueOnce([{
         id: '1',
         name: 'Updated User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date()
       }]);
 
       const userToUpdate: User = {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
-        // No password property to test the undefined branch
+        // No password provided
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await repository.update(userToUpdate as UserUpdateInput);
 
       expect(dbMock.update).toHaveBeenCalled();
 
-      // Check that expected properties are in the set call
+      // Check that the set call does not include password
       const firstCallArg = setMock.mock.calls[0][0];
       expect(firstCallArg).toBeDefined();
       expect(firstCallArg.name).toBe('Updated User');

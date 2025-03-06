@@ -9,6 +9,9 @@ export const UserSchema = z
     email: z.string().email(),
     name: z.string(),
     password: z.string().optional(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    deletedAt: z.date().optional(),
   });
 
 /**

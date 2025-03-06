@@ -11,13 +11,17 @@ describe('UserMockRepository', () => {
       id: '1',
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: '2',
       name: 'Another User',
       email: 'another@example.com',
-      password: 'anotherpassword'
+      password: 'anotherpassword',
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -87,7 +91,9 @@ describe('UserMockRepository', () => {
       const newUser = await repository.create({
         name: 'New User',
         email: 'new@example.com',
-        password: 'newpassword'
+        password: 'newpassword',
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(newUser.id).toBeDefined();
@@ -105,7 +111,9 @@ describe('UserMockRepository', () => {
       await expect(repository.create({
         name: 'Duplicate Email',
         email: 'test@example.com', // Same as existing user
-        password: 'password'
+        password: 'password',
+        createdAt: new Date(),
+        updatedAt: new Date()
       })).rejects.toThrow('User with email test@example.com already exists');
     });
   });
@@ -120,7 +128,9 @@ describe('UserMockRepository', () => {
         id: '1',
         name: 'Updated Name',
         email: 'test@example.com',
-        password: 'updatedpassword'
+        password: 'updatedpassword',
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(updatedUser.name).toBe('Updated Name');
@@ -136,7 +146,9 @@ describe('UserMockRepository', () => {
         id: 'non-existent',
         name: 'Non-existent User',
         email: 'nonexistent@example.com',
-        password: 'password'
+        password: 'password',
+        createdAt: new Date(),
+        updatedAt: new Date()
       })).rejects.toThrow('User with id non-existent not found');
     });
 
@@ -145,7 +157,9 @@ describe('UserMockRepository', () => {
         id: '1',
         name: 'Test User',
         email: 'another@example.com', // This email is already used by user 2
-        password: 'password123'
+        password: 'password123',
+        createdAt: new Date(),
+        updatedAt: new Date()
       })).rejects.toThrow('User with email another@example.com already exists');
     });
   });
