@@ -27,6 +27,16 @@ export const UserSchemaSafe = UserSchema.omit({ password: true });
 export type UserSafe = z.infer<typeof UserSchemaSafe>;
 
 /**
+ * User create input
+ */
+export const UserCreateInputSchema = UserSchema.omit({ id: true });
+
+/**
+ * Type of the user create input
+ */
+export type UserCreateInput = z.infer<typeof UserCreateInputSchema>;
+
+/**
  * User update input
  */
 export const UserUpdateInputSchema = UserSchema.partial().extend({

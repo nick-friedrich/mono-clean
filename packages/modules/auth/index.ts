@@ -1,12 +1,5 @@
 
-
-/**
- * Constants
- */
-
-export const REQUIRES_EMAIL_VERIFICATION = false;
-
-export { auth, AuthModule } from './auth.module';
+export { AuthModule } from './auth.module';
 export { AuthService } from './service/auth.service';
 
 // Re-export types

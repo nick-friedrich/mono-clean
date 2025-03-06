@@ -1,7 +1,7 @@
 
 // src/mock/user.repository.ts
 import { UserRepository } from '../interface';
-import { User, UserSafe } from '../types';
+import { User, UserCreateInput, UserSafe } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 export class UserMockRepository extends UserRepository {
@@ -41,7 +41,7 @@ export class UserMockRepository extends UserRepository {
     return user || null;
   }
 
-  async create(userData: Omit<User, 'id'>): Promise<User> {
+  async create(userData: UserCreateInput): Promise<User> {
     const existingUser = await this.findByEmail(userData.email);
     if (existingUser) {
       throw new Error(`User with email ${userData.email} already exists`);
