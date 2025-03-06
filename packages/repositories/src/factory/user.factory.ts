@@ -1,10 +1,10 @@
-import { AbstractUserRepository } from '../interface';
+import { UserRepository } from '../interface';
 import { UserDrizzleRepository } from '../drizzle';
 import { UserMockRepository } from '../mock';
 
 type RepositoryImplementation = 'drizzle' | 'mock';
 
-export function getUserRepository(implementation: RepositoryImplementation = 'drizzle'): AbstractUserRepository {
+export function getUserRepository(implementation: RepositoryImplementation = 'drizzle'): UserRepository {
   switch (implementation) {
     case 'drizzle':
       return new UserDrizzleRepository();

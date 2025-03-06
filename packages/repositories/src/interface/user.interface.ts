@@ -5,7 +5,7 @@ import { User, UserSafe, UserSignUpWithEmailAndPasswordInput } from '../types';
  * This is used for the implementation of the user repository for specific databases/orms
  * @abstract
  */
-export abstract class AbstractUserRepository {
+export abstract class UserRepository {
   /**
    * Find a user by id
    * @param id - The id of the user

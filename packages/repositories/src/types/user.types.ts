@@ -27,20 +27,6 @@ export const UserSchemaSafe = UserSchema.omit({ password: true });
 export type UserSafe = z.infer<typeof UserSchemaSafe>;
 
 /**
- * User sign up with email and password
- */
-export const UserSignUpWithEmailAndPasswordInputSchema = UserSchema
-  .extend({
-    password: z.string().min(8),
-  })
-  .omit({ id: true });
-
-/**
- * Type of the user sign up with email and password
- */
-export type UserSignUpWithEmailAndPasswordInput = z.infer<typeof UserSignUpWithEmailAndPasswordInputSchema>;
-
-/**
  * User update input
  */
 export const UserUpdateInputSchema = UserSchema.partial().extend({

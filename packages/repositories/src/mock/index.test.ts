@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { UserMockRepository } from '../user.mock';
-import { User } from '../../types';
+import { UserMockRepository } from './user.mock';
+import { User } from '../types';
 
 describe('UserMockRepository', () => {
   let repository: UserMockRepository;

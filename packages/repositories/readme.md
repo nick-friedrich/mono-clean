@@ -1,3 +1,7 @@
+## Description
+
+This is the repository package. It contains the interfaces and implementations for the database operations.
+
 ## Usage
 
 ```ts

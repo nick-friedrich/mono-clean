@@ -1,10 +1,10 @@
 
 // src/mock/user.repository.ts
-import { AbstractUserRepository } from '../interface';
+import { UserRepository } from '../interface';
 import { User, UserSafe } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
-export class UserMockRepository extends AbstractUserRepository {
+export class UserMockRepository extends UserRepository {
   private users: User[] = [];
 
   /**

@@ -1,13 +1,13 @@
 import { db } from "@shared/db-drizzle-pg";
 import { usersTable } from "@shared/db-drizzle-pg/src/schema/users";
 import { eq } from "drizzle-orm";
-import { AbstractUserRepository } from "../interface";
+import { UserRepository } from "../interface";
 import { User, UserSafe, UserSignUpWithEmailAndPasswordInput, UserUpdateInput } from "../types";
 
 /**
  * User repository implementation for Drizzle PostgreSQL
  */
-export class UserDrizzleRepository extends AbstractUserRepository {
+export class UserDrizzleRepository extends UserRepository {
   /**
    * Find a user by id
    * @param id - The id of the user

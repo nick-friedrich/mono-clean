@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UserDrizzleRepository } from '../user.drizzle';
-import { User, UserSignUpWithEmailAndPasswordInput, UserUpdateInput } from '../../types/user.types';
+import { UserDrizzleRepository } from './user.drizzle';
+import { User, UserUpdateInput } from '../types/user.types';
 
 // Use vi.hoisted to define mock variables before they're used in vi.mock
 const mockUsers = [
@@ -196,7 +196,7 @@ describe('UserDrizzleRepository', () => {
         password: 'newpassword'
       };
 
-      const result = await repository.create(newUser as UserSignUpWithEmailAndPasswordInput);
+      const result = await repository.create(newUser);
 
       expect(dbMock.insert).toHaveBeenCalled();
 
@@ -231,7 +231,7 @@ describe('UserDrizzleRepository', () => {
         // No password property to test the undefined branch
       };
 
-      const result = await repository.create(newUser as UserSignUpWithEmailAndPasswordInput);
+      const result = await repository.create(newUser);
 
       expect(dbMock.insert).toHaveBeenCalled();
 

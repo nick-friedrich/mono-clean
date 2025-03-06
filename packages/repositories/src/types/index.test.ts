@@ -2,10 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   UserSchema,
   UserSchemaSafe,
-  UserSignUpWithEmailAndPasswordInputSchema,
   User,
   UserSafe
-} from '../user.types';
+} from './user.types';
 
 describe('User Interface Tests', () => {
   describe('User Schema', () => {
@@ -89,42 +88,6 @@ describe('User Interface Tests', () => {
     });
   });
 
-  describe('UserSignUpWithEmailAndPasswordSchema', () => {
-    it('should validate a valid sign up', () => {
-      const validSignUp = {
-        id: '123',
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123'
-      };
-
-      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(validSignUp);
-      expect(result.success).toBe(true);
-    });
-
-    it('should require a password', () => {
-      const signUpWithoutPassword = {
-        id: '123',
-        name: 'Test User',
-        email: 'test@example.com'
-      };
-
-      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(signUpWithoutPassword);
-      expect(result.success).toBe(false);
-    });
-
-    it('should require a strong password', () => {
-      const signUpWithWeakPassword = {
-        id: '123',
-        name: 'Test User',
-        email: 'test@example.com',
-        password: '123' // Too short
-      };
-
-      const result = UserSignUpWithEmailAndPasswordInputSchema.safeParse(signUpWithWeakPassword);
-      expect(result.success).toBe(false);
-    });
-  });
 
   describe('Type Compatibility', () => {
     it('should allow assignment of User to UserSafe', () => {

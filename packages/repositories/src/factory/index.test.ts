@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AbstractUserRepository } from '../../interface';
 
 // Create mock implementations
 const drizzleRepoMock = vi.hoisted(() => ({ _type: 'drizzle' }));
@@ -16,22 +15,20 @@ const UserMockRepositoryMock = vi.hoisted(() =>
 );
 
 // Mock the modules before importing from them
-vi.mock('../../drizzle/user.drizzle', () => {
+vi.mock('../drizzle/user.drizzle', () => {
   return {
     UserDrizzleRepository: UserDrizzleRepositoryMock
   };
 });
 
-vi.mock('../../mock/user.mock', () => {
+vi.mock('../mock/user.mock', () => {
   return {
     UserMockRepository: UserMockRepositoryMock
   };
 });
 
 // Import after mocking
-import { getUserRepository, userRepository } from '../user.factory';
-import { UserDrizzleRepository } from '../../drizzle';
-import { UserMockRepository } from '../../mock';
+import { getUserRepository, userRepository } from './user.factory';
 
 describe('User Repository Factory', () => {
   beforeEach(() => {
