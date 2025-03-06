@@ -1,6 +1,7 @@
-// packages/modules/auth/service/token/jwt.token-service.ts
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { TokenPayload, TokenResult, RefreshTokenResult, TokenService } from './token.interface';
+import { Session } from '@shared/repository';
+import { SessionRepository } from '@shared/repository/interface';
 
 /**
  * JWT config
@@ -13,22 +14,25 @@ export interface JwtConfig {
 }
 
 /**
- * JWT token service
+ * JWT token service with optional session support.
  */
 export class JwtTokenService implements TokenService {
   private config: JwtConfig;
+  private sessionRepository?: SessionRepository;
 
   /**
    * Constructor
    * @param config - JWT config
+   * @param sessionRepository - Optional session repository to persist refresh tokens
    */
-  constructor(config: JwtConfig) {
+  constructor(config: JwtConfig, sessionRepository?: SessionRepository) {
     this.config = {
       ...config,
       // Default refresh token settings if not provided
       refreshSecret: config.refreshSecret || `${config.secret}_refresh`,
       refreshExpiresIn: config.refreshExpiresIn || '7d'
     };
+    this.sessionRepository = sessionRepository;
   }
 
   /**
@@ -37,9 +41,10 @@ export class JwtTokenService implements TokenService {
    * @returns Token result
    */
   async generateToken(payload: TokenPayload): Promise<TokenResult> {
-    const expirationSeconds = typeof this.config.expiresIn === 'string'
-      ? this.parseExpirationString(this.config.expiresIn)
-      : this.config.expiresIn;
+    const expirationSeconds =
+      typeof this.config.expiresIn === 'string'
+        ? this.parseExpirationString(this.config.expiresIn)
+        : this.config.expiresIn;
 
     const expiresAt = Math.floor(Date.now() / 1000) + expirationSeconds;
 
@@ -69,7 +74,7 @@ export class JwtTokenService implements TokenService {
   }
 
   /**
-   * Generate refresh token
+   * Generate refresh token and store a session record (if sessionRepository is provided)
    * @param payload - Token payload
    * @returns Refresh token result
    */
@@ -86,12 +91,29 @@ export class JwtTokenService implements TokenService {
       expiresIn: refreshExpiresIn
     };
 
-
     const refreshToken = jwt.sign(
       { userId: payload.userId, type: 'refresh' },
       this.config.refreshSecret as string,
       signOptions
     );
+
+    // If a session repository is provided, create a session record
+    if (this.sessionRepository) {
+      const sessionData: Session = {
+        // If your repository generates the id, you can leave it empty or generate one with uuid
+        id: '',
+        userId: payload.userId,
+        refreshToken,
+        userAgent: (payload as any).userAgent || 'unknown',
+        ipAddress: (payload as any).ipAddress || 'unknown',
+        expiresAt: new Date(Date.now() + (refreshExpiresIn || 0) * 1000),
+        isValid: true,
+        lastUsedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      await this.sessionRepository.create(sessionData);
+    }
 
     return {
       ...tokenResult,
@@ -100,7 +122,7 @@ export class JwtTokenService implements TokenService {
   }
 
   /**
-   * Refresh token
+   * Refresh token: verifies the refresh token and returns a new access token.
    * @param refreshToken - Refresh token
    * @returns Token result
    */
@@ -116,6 +138,8 @@ export class JwtTokenService implements TokenService {
       if (payload.type !== 'refresh') {
         throw new Error('Invalid token type');
       }
+
+      // Optionally, update session (e.g., lastUsedAt) if using sessionRepository
 
       // Generate a new access token
       return this.generateToken({
@@ -135,7 +159,7 @@ export class JwtTokenService implements TokenService {
     const unit = expiration.slice(-1);
     const value = parseInt(expiration.slice(0, -1), 10);
     if (isNaN(value)) {
-      // You might want to throw an error or return a default value here.
+      // Return default if parsing fails
       return 3600; // Default to 1 hour
     }
     switch (unit) {
@@ -146,5 +170,4 @@ export class JwtTokenService implements TokenService {
       default: return 3600;
     }
   }
-
 }

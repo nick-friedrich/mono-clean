@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { JwtTokenService } from './token.jwt.service';
 
 describe('JwtTokenService', () => {
@@ -144,5 +144,48 @@ describe('JwtTokenService', () => {
     // should trigger the isNaN branch and return the default 3600.
     // @ts-ignore: Testing private method
     expect(service['parseExpirationString']('x')).toBe(3600);
+  });
+
+  it('should create a session record when sessionRepository is provided', async () => {
+    // Create a fake session repository with a mocked create method.
+    const sessionRepo = {
+      create: vi.fn().mockResolvedValue({
+        id: 'sess-123',
+        userId: '123',
+        refreshToken: 'fake-refresh-token',
+        userAgent: 'agent-test',
+        ipAddress: '127.0.0.1',
+        expiresAt: new Date(Date.now() + 3600 * 1000),
+        isValid: true,
+        lastUsedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+    };
+
+    // Create a new instance of the service with the session repository injected.
+    const serviceWithSession = new JwtTokenService({
+      secret: 'test-secret',
+      expiresIn: '1h',
+      refreshSecret: 'test-refresh-secret',
+      refreshExpiresIn: '7d',
+    }, sessionRepo as any);
+
+    // Include additional data in the payload to simulate user agent & ip address.
+    const payload = { userId: '123', userAgent: 'agent-test', ipAddress: '127.0.0.1' };
+    const tokenResult = await serviceWithSession.generateRefreshToken(payload);
+
+    // Verify that the session repository's create method was called with a session object.
+    expect(sessionRepo.create).toHaveBeenCalled();
+    const sessionData = sessionRepo.create.mock.calls[0][0];
+    expect(sessionData.userId).toBe('123');
+    expect(sessionData.refreshToken).toBe(tokenResult.refreshToken);
+    expect(sessionData.userAgent).toBe('agent-test');
+    expect(sessionData.ipAddress).toBe('127.0.0.1');
+
+    // Also, verify the refresh token payload.
+    const decoded = jwt.verify(tokenResult.refreshToken, 'test-refresh-secret') as jwt.JwtPayload;
+    expect(decoded).toHaveProperty('userId', '123');
+    expect(decoded).toHaveProperty('type', 'refresh');
   });
 });
