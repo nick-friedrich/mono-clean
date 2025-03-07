@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { AuthModuleConfig, AuthServiceError, UserLoginWithEmailAndPasswordInputSchema, UserSignUpWithEmailAndPasswordInputSchema } from "@shared/module";
-import { Router } from "express";
 import { ZodError } from "zod";
 import { AuthModule } from "@shared/module";
 import { JwtTokenService } from "@shared/module";
@@ -18,7 +17,7 @@ const authConfig: AuthModuleConfig = {
 const userRepository = new UserDrizzleRepository();
 const sessionRepository = new SessionDrizzleRepository();
 const tokenService = new JwtTokenService(authConfig.jwt, sessionRepository);
-
+const authModule = AuthModule.getInstance(authConfig, userRepository, tokenService);
 
 export class AuthController {
 
@@ -33,7 +32,6 @@ export class AuthController {
       const body = req.body;
       const input = UserLoginWithEmailAndPasswordInputSchema.parse(body);
 
-      const authModule = AuthModule.getInstance(authConfig);
       const result = await authModule.authService.signInWithEmailAndPassword(input.email, input.password);
 
       res.json({ message: 'Login successful', result });
@@ -71,7 +69,6 @@ export class AuthController {
       const body = req.body;
       const input = UserSignUpWithEmailAndPasswordInputSchema.parse(body);
 
-      const authModule = AuthModule.getInstance(authConfig, userRepository, tokenService);
       const result = await authModule.authService.signUpWithEmailAndPassword(input.email, input.password, input.name);
 
       res.json({ message: 'Signup successful', result });
