@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthModule, AuthModuleConfig } from './auth.module';
 import { AuthService } from './service/auth.service';
 import { JwtTokenService } from './service/token.jwt.service';
-import { UserDrizzleRepository, UserRepository } from '@shared/repository';
+import { SessionRepository, UserDrizzleRepository, UserRepository } from '@shared/repository';
 import { TokenService } from './service/token.interface';
 
 describe('AuthModule', () => {
@@ -47,6 +47,16 @@ describe('AuthModule', () => {
       delete: vi.fn(),
     };
 
+    const customSessionRepository: SessionRepository = {
+      findById: vi.fn(),
+      findByRefreshToken: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      deleteAllByUserId: vi.fn(),
+      deleteAllExpiredSessions: vi.fn(),
+    };
+
     const customTokenService: TokenService = {
       generateToken: vi.fn(),
       verifyToken: vi.fn(),
@@ -54,7 +64,7 @@ describe('AuthModule', () => {
       generateRefreshToken: vi.fn(),
     };
 
-    const instance = AuthModule.initialize(config, customUserRepository, customTokenService);
+    const instance = AuthModule.initialize(config, customUserRepository, customSessionRepository, customTokenService);
     expect(instance).toBeDefined();
     expect(instance.authService).toBeInstanceOf(AuthService);
     expect(instance.tokenService).toBe(customTokenService);
@@ -69,7 +79,17 @@ describe('AuthModule', () => {
       delete: vi.fn(),
     };
 
-    const instance = AuthModule.initialize(config, customUserRepository);
+    const customSessionRepository: SessionRepository = {
+      findById: vi.fn(),
+      findByRefreshToken: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      deleteAllByUserId: vi.fn(),
+      deleteAllExpiredSessions: vi.fn(),
+    };
+
+    const instance = AuthModule.initialize(config, customUserRepository, customSessionRepository);
     expect(instance.tokenService).toBeInstanceOf(JwtTokenService);
   });
 });

@@ -18,7 +18,8 @@ export default defineConfig({
         "**/schema/*.ts",
         "**/*.config.ts",
         "**/*.config.ts",
-        "**/coverage/**"
+        "**/coverage/**",
+        "./apps/api-express/src/index.ts"
       ]
     }
   }

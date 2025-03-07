@@ -5,6 +5,7 @@ import { PasswordService } from './password.service';
 describe('AuthService', () => {
   let authService: AuthService;
   let userRepository: any;
+  let sessionRepository: any;
   let tokenService: any;
 
   beforeEach(() => {
@@ -12,6 +13,11 @@ describe('AuthService', () => {
     userRepository = {
       findByEmail: vi.fn(),
       create: vi.fn(),
+    };
+
+    // Create a stub for SessionRepository
+    sessionRepository = {
+      delete: vi.fn(),
     };
 
     // Create a stub for TokenService with all methods
@@ -22,7 +28,7 @@ describe('AuthService', () => {
       refreshToken: vi.fn(),
     };
 
-    authService = new AuthService(userRepository, tokenService);
+    authService = new AuthService(userRepository, sessionRepository, tokenService);
   });
 
   describe('signInWithEmailAndPassword', () => {
@@ -323,8 +329,9 @@ describe('AuthService', () => {
 
   describe('signOut', () => {
     it('should sign out successfully', async () => {
-      const result = await authService.signOut();
+      const result = await authService.signOut('some-session-id');
       expect(result).toEqual({ success: true });
+      expect(sessionRepository.delete).toHaveBeenCalledWith('some-session-id');
     });
   });
 });

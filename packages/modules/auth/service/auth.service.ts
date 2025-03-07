@@ -1,5 +1,5 @@
 // packages/modules/auth/service/auth.service.ts
-import { UserRepository } from "@shared/repository";
+import { SessionRepository, UserRepository } from "@shared/repository";
 import { TokenService, TokenPayload } from "./token.interface";
 import { PasswordService } from "./password.service";
 
@@ -14,6 +14,9 @@ export interface SignInResult {
   refreshToken?: string;
 }
 
+/**
+ * Auth service
+ */
 export class AuthService {
   /**
    * Constructor
@@ -22,6 +25,7 @@ export class AuthService {
    */
   constructor(
     private userRepository: UserRepository,
+    private sessionRepository: SessionRepository,
     private tokenService: TokenService
   ) { }
 
@@ -89,6 +93,13 @@ export class AuthService {
     }
   }
 
+  /**
+   * Sign up with email and password
+   * @param email - User email
+   * @param password - User password
+   * @param name - User name
+   * @returns Sign up result, which is the same as the sign in result
+   */
   async signUpWithEmailAndPassword(email: string, password: string, name?: string): Promise<SignInResult> {
     // Check if user exists
     const existingUser = await this.userRepository.findByEmail(email);
@@ -134,9 +145,14 @@ export class AuthService {
     };
   }
 
-  async signOut() {
-    // With JWT, there's no server-side logout required
-    // You would invalidate tokens in a real-world scenario with a token blacklist
+  /**
+   * Sign out
+   * @returns Sign out result
+   */
+  async signOut(sessionId: string) {
+    // Delete session
+    await this.sessionRepository.delete(sessionId)
+
     return { success: true };
   }
 }

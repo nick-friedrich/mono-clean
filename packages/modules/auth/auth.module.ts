@@ -1,5 +1,5 @@
 // packages/modules/auth/auth.module.ts
-import { UserDrizzleRepository, UserRepository } from "@shared/repository";
+import { SessionDrizzleRepository, SessionRepository, UserDrizzleRepository, UserRepository } from "@shared/repository";
 import { AuthService } from "./service/auth.service";
 import { TokenService } from "./service/token.interface";
 import { JwtTokenService } from "./service/token.jwt.service";
@@ -48,21 +48,22 @@ export class AuthModule {
   private constructor(
     config: AuthModuleConfig,
     userRepository = new UserDrizzleRepository(),
+    sessionRepository = new SessionDrizzleRepository(),
     tokenService?: TokenService
   ) {
     // Initialize token service
     this.tokenService = tokenService || new JwtTokenService(config.jwt);
 
     // Initialize auth service with token service
-    this.authService = new AuthService(userRepository, this.tokenService);
+    this.authService = new AuthService(userRepository, sessionRepository, this.tokenService);
   }
 
   /**
    * Get the singleton instance of AuthModule
    */
-  static getInstance(config: AuthModuleConfig, userRepository?: UserRepository, tokenService?: TokenService): AuthModule {
+  static getInstance(config: AuthModuleConfig, userRepository?: UserRepository, sessionRepository?: SessionRepository, tokenService?: TokenService): AuthModule {
     if (!AuthModule.instance) {
-      AuthModule.instance = new AuthModule(config, userRepository, tokenService);
+      AuthModule.instance = new AuthModule(config, userRepository, sessionRepository, tokenService);
     }
     return AuthModule.instance;
   }
@@ -73,9 +74,10 @@ export class AuthModule {
   static initialize(
     config: AuthModuleConfig,
     userRepository: UserRepository,
+    sessionRepository: SessionRepository,
     tokenService?: TokenService
   ): AuthModule {
-    AuthModule.instance = new AuthModule(config, userRepository, tokenService);
+    AuthModule.instance = new AuthModule(config, userRepository, sessionRepository, tokenService);
     return AuthModule.instance;
   }
 }

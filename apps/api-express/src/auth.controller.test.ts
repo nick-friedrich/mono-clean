@@ -2,34 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import { authConfig, AuthController, authModule } from './auth.controller';
 import { AuthServiceError, UserLoginWithEmailAndPasswordInputSchema, UserSignUpWithEmailAndPasswordInputSchema } from '@shared/module';
-import { AuthModule } from '@shared/module';
 import { ZodError } from 'zod';
 
-// Create a simpler approach - directly mock the schema parse methods
-vi.mock('@shared/module', async () => {
-  const actual = await vi.importActual('@shared/module');
-  return {
-    ...actual,
-    UserLoginWithEmailAndPasswordInputSchema: {
-      parse: vi.fn().mockImplementation((data) => {
-        if (data.email === 'invalid-email' || typeof data.password !== 'string') {
-          throw new Error('Validation failed');
-        }
-        return data;
-      })
-    },
-    UserSignUpWithEmailAndPasswordInputSchema: {
-      parse: vi.fn().mockImplementation((data) => {
-        if (data.email === 'invalid-email' || typeof data.password !== 'string' || typeof data.name !== 'string') {
-          throw new Error('Validation failed');
-        }
-        return data;
-      })
-    }
-  };
-});
+// Ensure we use the actual Zod implementation.
+vi.unmock('zod');
 
-// We'll use our controller instance and stub req/res objects.
 describe('AuthController', () => {
   let controller: AuthController;
   let req: Partial<Request>;
@@ -37,27 +14,15 @@ describe('AuthController', () => {
   let jsonSpy: ReturnType<typeof vi.fn>;
   let statusSpy: ReturnType<typeof vi.fn>;
 
-  // Before each test, create fresh controller and stubbed req/res.
   beforeEach(() => {
-    // Reset mocks
     vi.resetAllMocks();
 
-    // Create a new controller instance
+    // Create a new controller instance.
     controller = new AuthController();
 
-    // Use the actual exported singleton instance
-    vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockImplementation(async () => ({
-      token: '',
-      user: { id: 'test-id', email: 'test@example.com' },
-      expiresAt: Date.now(),
-      refreshToken: ''
-    }));
-    vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword').mockImplementation(async () => ({
-      token: '',
-      user: { id: 'test-id', email: 'test@example.com' },
-      expiresAt: Date.now(),
-      refreshToken: ''
-    }));
+    // Override authModule.authService methods with spies instead of direct assignment
+    vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockImplementation(vi.fn());
+    vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword').mockImplementation(vi.fn());
 
     req = {};
     jsonSpy = vi.fn();
@@ -78,8 +43,8 @@ describe('AuthController', () => {
       };
       req.body = { email: 'test@test.com', password: 'password' };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockResolvedValueOnce(dummyResult);
+      // Set up the auth service spy for a successful login.
+      (authModule.authService.signInWithEmailAndPassword as any).mockResolvedValueOnce(dummyResult);
 
       await controller.signInWithEmailAndPassword(req as Request, res as Response);
 
@@ -89,44 +54,44 @@ describe('AuthController', () => {
     it('should return 400 with AuthServiceError if login fails', async () => {
       req.body = { email: 'test@test.com', password: 'wrong-password' };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signInWithEmailAndPassword')
-        .mockRejectedValueOnce(new AuthServiceError('Invalid credentials'));
+      // Create an error and force its prototype to match AuthServiceError.
+      const error = new AuthServiceError('Invalid credentials');
+      Object.setPrototypeOf(error, AuthServiceError.prototype);
+      (authModule.authService.signInWithEmailAndPassword as any).mockRejectedValueOnce(error);
 
       await controller.signInWithEmailAndPassword(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'AuthServiceError: Failed to login',
-        error: 'Invalid credentials',
+        error: 'Invalid credentials'
       });
     });
 
     it('should return 400 with validation errors if input is invalid', async () => {
       req.body = { email: 'invalid-email', password: 12345 };
 
+      // The mocked parse in the module should throw a ZodError.
       await controller.signInWithEmailAndPassword(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'Validation error',
-        errors: expect.any(Object),
+        errors: expect.any(Object)
       });
     });
 
     it('should return 500 for unexpected errors', async () => {
       req.body = { email: 'test@test.com', password: 'password' };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signInWithEmailAndPassword')
-        .mockRejectedValueOnce(new Error('Unexpected database error'));
+      (authModule.authService.signInWithEmailAndPassword as any).mockRejectedValueOnce(new Error('Unexpected database error'));
 
       await controller.signInWithEmailAndPassword(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'Internal server error',
-        error: expect.any(Error),
+        error: expect.any(Error)
       });
     });
   });
@@ -139,12 +104,10 @@ describe('AuthController', () => {
         user: { id: '2', email: 'newuser@test.com', name: 'NewUser' },
         token: 'access-token-new',
         expiresAt: Date.now() + 10000,
-        refreshToken: 'refresh-token-new',
+        refreshToken: 'refresh-token-new'
       };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword')
-        .mockResolvedValueOnce(dummyResult);
+      (authModule.authService.signUpWithEmailAndPassword as any).mockResolvedValueOnce(dummyResult);
 
       await controller.signUpWithEmailAndPassword(req as Request, res as Response);
 
@@ -154,16 +117,16 @@ describe('AuthController', () => {
     it('should return 400 with AuthServiceError if signup fails', async () => {
       req.body = { email: 'newuser@test.com', password: 'password', name: 'NewUser' };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword')
-        .mockRejectedValueOnce(new AuthServiceError('User already exists'));
+      const error = new AuthServiceError('User already exists');
+      Object.setPrototypeOf(error, AuthServiceError.prototype);
+      (authModule.authService.signUpWithEmailAndPassword as any).mockRejectedValueOnce(error);
 
       await controller.signUpWithEmailAndPassword(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'AuthServiceError: Failed to signup',
-        error: 'User already exists',
+        error: 'User already exists'
       });
     });
 
@@ -175,23 +138,21 @@ describe('AuthController', () => {
       expect(statusSpy).toHaveBeenCalledWith(400);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'Validation error',
-        errors: expect.any(Object),
+        errors: expect.any(Object)
       });
     });
 
     it('should return 500 for unexpected errors', async () => {
       req.body = { email: 'newuser@test.com', password: 'password', name: 'NewUser' };
 
-      // Use the exported authModule directly
-      vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword')
-        .mockRejectedValueOnce(new Error('Unexpected database error'));
+      (authModule.authService.signUpWithEmailAndPassword as any).mockRejectedValueOnce(new Error('Unexpected database error'));
 
       await controller.signUpWithEmailAndPassword(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
         message: 'Internal server error',
-        error: expect.any(Error),
+        error: expect.any(Error)
       });
     });
   });

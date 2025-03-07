@@ -17,7 +17,7 @@ export const authConfig: AuthModuleConfig = {
 const userRepository = new UserDrizzleRepository();
 const sessionRepository = new SessionDrizzleRepository();
 const tokenService = new JwtTokenService(authConfig.jwt, sessionRepository);
-export const authModule = AuthModule.getInstance(authConfig, userRepository, tokenService);
+export const authModule = AuthModule.getInstance(authConfig, userRepository, sessionRepository, tokenService);
 
 export class AuthController {
 

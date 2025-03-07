@@ -6,7 +6,7 @@ export default defineConfig({
     coverage: {
       all: true,
       include: ["**/*.ts", "**/*.tsx"],
-      exclude: ["**/node_modules/**", "**/dist/**", "**/*.test.ts", "**/*.config.ts"],
+      exclude: ["**/node_modules/**", "**/dist/**", "**/*.test.ts", "**/*.config.ts", "./index.ts"],
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
     }
