@@ -6,7 +6,7 @@ import { JwtTokenService } from "@shared/module";
 import { SessionDrizzleRepository, UserDrizzleRepository } from "@shared/repository";
 
 // Setup auth module, user repository, session repository, and token service
-const authConfig: AuthModuleConfig = {
+export const authConfig: AuthModuleConfig = {
   jwt: {
     secret: 'secret',
     expiresIn: '1h',
@@ -17,7 +17,7 @@ const authConfig: AuthModuleConfig = {
 const userRepository = new UserDrizzleRepository();
 const sessionRepository = new SessionDrizzleRepository();
 const tokenService = new JwtTokenService(authConfig.jwt, sessionRepository);
-const authModule = AuthModule.getInstance(authConfig, userRepository, tokenService);
+export const authModule = AuthModule.getInstance(authConfig, userRepository, tokenService);
 
 export class AuthController {
 
@@ -72,6 +72,7 @@ export class AuthController {
       const result = await authModule.authService.signUpWithEmailAndPassword(input.email, input.password, input.name);
 
       res.json({ message: 'Signup successful', result });
+      return;
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({
@@ -87,6 +88,8 @@ export class AuthController {
         });
         return;
       }
+      res.status(500).json({ message: 'Internal server error', error });
+      return;
     }
 
   }
