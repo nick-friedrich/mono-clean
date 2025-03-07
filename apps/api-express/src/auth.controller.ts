@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { AuthModule } from "@shared/module";
 import { JwtTokenService } from "@shared/module";
 import { SessionDrizzleRepository, UserDrizzleRepository } from "@shared/repository";
+import { decode } from 'punycode';
 
 // Setup auth module, user repository, session repository, and token service
 export const authConfig: AuthModuleConfig = {
@@ -94,5 +95,34 @@ export class AuthController {
 
   }
 
+  /**
+   * Sign out
+   * Signs out the user by deleting the refresh token from the database
+   * Client also need to delete the access token from the client side
+   * 
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  async signOut(req: Request, res: Response) {
+    try {
+      // Get refresh token from request
+      const refreshToken = req.body.refreshToken;
+      if (!refreshToken) {
+        res.status(400).json({ message: 'Refresh token is required' });
+        return;
+      }
+
+      // Verify token
+      const decoded = await authModule.tokenService.verifyToken(refreshToken);
+
+      const result = await authModule.authService.signOut(decoded?.sessionId);
+      res.json({ message: 'Signout successful', result });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error });
+      return;
+    }
+  }
 
 }

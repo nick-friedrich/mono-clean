@@ -105,7 +105,7 @@ export class JwtTokenService implements TokenService {
         refreshToken,
         userAgent: (payload as any).userAgent || 'unknown',
         ipAddress: (payload as any).ipAddress || 'unknown',
-        expiresAt: new Date(Date.now() + (refreshExpiresIn || 0) * 1000),
+        expiresAt: new Date(Date.now() + (refreshExpiresIn ?? 1000 * 60 * 60 * 24 * 7)),
         isValid: true,
         lastUsedAt: new Date(),
       };
@@ -137,6 +137,16 @@ export class JwtTokenService implements TokenService {
       }
 
       // Optionally, update session (e.g., lastUsedAt) if using sessionRepository
+      if (this.sessionRepository) {
+        const session = await this.sessionRepository.findByRefreshToken(refreshToken);
+        if (session) {
+          await this.sessionRepository.update({
+            id: session.id,
+            lastUsedAt: new Date(),
+            expiresAt: new Date(Date.now() + (this.config.refreshExpiresIn as number) * 1000),
+          });
+        }
+      }
 
       // Generate a new access token
       return this.generateToken({
