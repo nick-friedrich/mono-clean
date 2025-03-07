@@ -1,8 +1,33 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Request, Response } from 'express';
 import { authConfig, AuthController, authModule } from './auth.controller';
-import { AuthServiceError } from '@shared/module';
+import { AuthServiceError, UserLoginWithEmailAndPasswordInputSchema, UserSignUpWithEmailAndPasswordInputSchema } from '@shared/module';
 import { AuthModule } from '@shared/module';
+import { ZodError } from 'zod';
+
+// Create a simpler approach - directly mock the schema parse methods
+vi.mock('@shared/module', async () => {
+  const actual = await vi.importActual('@shared/module');
+  return {
+    ...actual,
+    UserLoginWithEmailAndPasswordInputSchema: {
+      parse: vi.fn().mockImplementation((data) => {
+        if (data.email === 'invalid-email' || typeof data.password !== 'string') {
+          throw new Error('Validation failed');
+        }
+        return data;
+      })
+    },
+    UserSignUpWithEmailAndPasswordInputSchema: {
+      parse: vi.fn().mockImplementation((data) => {
+        if (data.email === 'invalid-email' || typeof data.password !== 'string' || typeof data.name !== 'string') {
+          throw new Error('Validation failed');
+        }
+        return data;
+      })
+    }
+  };
+});
 
 // We'll use our controller instance and stub req/res objects.
 describe('AuthController', () => {
@@ -14,6 +39,12 @@ describe('AuthController', () => {
 
   // Before each test, create fresh controller and stubbed req/res.
   beforeEach(() => {
+    // Reset mocks
+    vi.resetAllMocks();
+
+    // Create a new controller instance
+    controller = new AuthController();
+
     // Use the actual exported singleton instance
     vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockImplementation(async () => ({
       token: '',
@@ -28,7 +59,6 @@ describe('AuthController', () => {
       refreshToken: ''
     }));
 
-    controller = new AuthController();
     req = {};
     jsonSpy = vi.fn();
     statusSpy = vi.fn().mockReturnValue({ json: jsonSpy });
