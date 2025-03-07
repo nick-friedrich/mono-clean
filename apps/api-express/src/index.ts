@@ -4,6 +4,7 @@ import morgan from 'morgan';
 
 const app = express();
 app.use(express.json());
+app.use(morgan('tiny'));
 
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
@@ -15,7 +16,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello World' });
 });
 
-app.use(morgan('combined'));
 
 v1Router.use('/auth', authRouter);
 

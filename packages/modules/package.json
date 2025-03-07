@@ -11,10 +11,10 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./index.ts",
-    "./modules": "./src/modules/index.ts",
-    "./modules/auth": "./src/modules/auth/index.ts",
-    "./modules/auth/service": "./src/modules/auth/service",
-    "./modules/auth/schema": "./src/modules/auth/service/auth.schema.ts"
+    "./modules": "./modules/index.ts",
+    "./modules/auth": "./modules/auth/index.ts",
+    "./modules/auth/service": "./modules/auth/service/index.ts",
+    "./modules/auth/schema": "./modules/auth/auth.schema.ts"
   },
   "dependencies": {
     "@shared/repository": "workspace:*",
