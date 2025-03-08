@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { AuthModule } from "@shared/module";
 import { JwtTokenService } from "@shared/module";
 import { SessionDrizzleRepository, UserDrizzleRepository } from "@shared/repository";
-import { decode } from 'punycode';
 
 // Setup auth module, user repository, session repository, and token service
 export const authConfig: AuthModuleConfig = {

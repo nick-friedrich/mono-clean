@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+myenv
+
 # Dependencies
 node_modules
 .pnp
@@ -36,3 +38,4 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+.aider*
