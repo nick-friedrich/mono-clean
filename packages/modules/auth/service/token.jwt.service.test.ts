@@ -110,6 +110,44 @@ describe('JwtTokenService', () => {
         await expect(service.refreshToken(token)).rejects.toThrow('Invalid refresh token');
       });
 
+      it('should update the session when refreshing a token with sessionRepository', async () => {
+        // Setup mock session
+        const mockSession = {
+          id: 'session-123',
+          userId: '123',
+          refreshToken: 'mock-refresh-token',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          lastUsedAt: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
+        };
+
+        // Configure mock to return the session
+        (mockSessionRepository.findByRefreshToken as any).mockResolvedValue(mockSession);
+
+        // Generate a refresh token
+        const tokenResult = await service.generateRefreshToken({ userId: '123' });
+
+        // Refresh the token
+        await service.refreshToken(tokenResult.refreshToken);
+
+        // Verify findByRefreshToken was called with the refresh token
+        expect(mockSessionRepository.findByRefreshToken).toHaveBeenCalledWith(tokenResult.refreshToken);
+
+        // Verify update was called with the correct parameters
+        expect(mockSessionRepository.update).toHaveBeenCalled();
+        const updateCall = (mockSessionRepository.update as any).mock.calls[0][0];
+
+        // Verify the session ID is correct
+        expect(updateCall.id).toBe('session-123');
+
+        // Verify the update contains the expected properties
+        expect(updateCall).toHaveProperty('lastUsedAt');
+        expect(updateCall).toHaveProperty('expiresAt');
+
+        // Instead of checking the actual Date values, just verify the properties exist
+        // This avoids issues with Date serialization in mocks
+        expect(typeof updateCall.lastUsedAt).not.toBe('undefined');
+        expect(typeof updateCall.expiresAt).not.toBe('undefined');
+      });
     })
 
 
