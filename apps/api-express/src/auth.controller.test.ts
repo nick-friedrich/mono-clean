@@ -23,6 +23,10 @@ describe('AuthController', () => {
     // Override authModule.authService methods with spies instead of direct assignment
     vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockImplementation(vi.fn());
     vi.spyOn(authModule.authService, 'signUpWithEmailAndPassword').mockImplementation(vi.fn());
+    vi.spyOn(authModule.authService, 'signOut').mockImplementation(vi.fn());
+
+    // Mock the token service methods
+    vi.spyOn(authModule.tokenService, 'verifyToken').mockImplementation(vi.fn());
 
     req = {};
     jsonSpy = vi.fn();
@@ -148,6 +152,46 @@ describe('AuthController', () => {
       (authModule.authService.signUpWithEmailAndPassword as any).mockRejectedValueOnce(new Error('Unexpected database error'));
 
       await controller.signUpWithEmailAndPassword(req as Request, res as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(500);
+      expect(jsonSpy).toHaveBeenCalledWith({
+        message: 'Internal server error',
+        error: expect.any(Error)
+      });
+    });
+  });
+
+  describe('signOut', () => {
+    it('should return 200 with message on successful signout', async () => {
+      req.body = { refreshToken: 'refresh-token' };
+
+      (authModule.tokenService.verifyToken as any).mockResolvedValueOnce({ sessionId: 'sess-123' });
+      (authModule.authService.signOut as any).mockResolvedValueOnce({ message: 'Signout successful' });
+
+      await controller.signOut(req as Request, res as Response);
+
+      expect(jsonSpy).toHaveBeenCalledWith({ message: 'Signout successful', result: { message: 'Signout successful' } });
+    });
+
+    it('should return 400 with validation errors if input is invalid', async () => {
+      // Set refreshToken to undefined to trigger the validation error
+      req.body = { refreshToken: undefined };
+
+      await controller.signOut(req as Request, res as Response);
+
+      expect(statusSpy).toHaveBeenCalledWith(400);
+      expect(jsonSpy).toHaveBeenCalledWith({
+        message: 'Refresh token is required'
+      });
+    });
+
+    it('should return 500 for unexpected errors', async () => {
+      req.body = { refreshToken: 'refresh-token' };
+
+      // Mock verifyToken to throw an error
+      (authModule.tokenService.verifyToken as any).mockRejectedValueOnce(new Error('Token verification failed'));
+
+      await controller.signOut(req as Request, res as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(500);
       expect(jsonSpy).toHaveBeenCalledWith({
