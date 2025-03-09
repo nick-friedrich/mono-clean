@@ -1,8 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Request, Response } from 'express';
-import { authConfig, AuthController, authModule } from './auth.controller';
-import { AuthServiceError, UserLoginWithEmailAndPasswordInputSchema, UserSignUpWithEmailAndPasswordInputSchema } from '@shared/module';
-import { ZodError } from 'zod';
+import { AuthController } from './auth.controller';
+import { AuthModule, AuthModuleConfig, AuthServiceError, JwtTokenService } from '@shared/module';
+import { SessionMockRepository } from '@shared/repository';
+import { UserMockRepository } from '@shared/repository';
+
+const authConfig: AuthModuleConfig = {
+  jwt: {
+    secret: 'secret',
+    expiresIn: '1h',
+  },
+};
+const authModule = AuthModule.getInstance(
+  authConfig,
+  new UserMockRepository(),
+  new SessionMockRepository(),
+  new JwtTokenService(authConfig.jwt)
+);
+
 
 // Ensure we use the actual Zod implementation.
 vi.unmock('zod');
@@ -18,7 +33,7 @@ describe('AuthController', () => {
     vi.resetAllMocks();
 
     // Create a new controller instance.
-    controller = new AuthController();
+    controller = new AuthController(authModule);
 
     // Override authModule.authService methods with spies instead of direct assignment
     vi.spyOn(authModule.authService, 'signInWithEmailAndPassword').mockImplementation(vi.fn());
@@ -198,6 +213,16 @@ describe('AuthController', () => {
         message: 'Internal server error',
         error: expect.any(Error)
       });
+    });
+  });
+
+  describe('getMe', () => {
+    it('should return 200 with user on successful getMe', async () => {
+      req.user = { id: '1', email: 'test@test.com' };
+
+      await controller.getMe(req as Request, res as Response);
+
+      expect(jsonSpy).toHaveBeenCalledWith({ message: 'Me', user: { id: '1', email: 'test@test.com' } });
     });
   });
 });
