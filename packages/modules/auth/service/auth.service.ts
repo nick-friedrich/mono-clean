@@ -128,10 +128,20 @@ export class AuthService {
     return this.signInWithEmailAndPassword(email, password);
   }
 
+  /**
+   * Validate token
+   * @param token - Token
+   * @returns Token result
+   */
   async validateToken(token: string): Promise<{ userId: string } | null> {
     return this.tokenService.verifyToken(token);
   }
 
+  /**
+   * Refresh token
+   * @param refreshToken - Refresh token
+   * @returns Refresh token result
+   */
   async refreshToken(refreshToken: string): Promise<Omit<SignInResult, 'user' | 'refreshToken'>> {
     if (!this.tokenService.refreshToken) {
       throw new Error('Refresh token functionality not supported');
