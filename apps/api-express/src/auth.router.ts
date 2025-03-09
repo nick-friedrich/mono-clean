@@ -36,3 +36,14 @@ authRouter.get('/me',
   authMiddleware.verifyToken.bind(authMiddleware),
   authController.getMe.bind(authController)
 );
+
+authRouter.get('/admin',
+  authMiddleware.verifyToken.bind(authMiddleware),
+  async (req, res, next) => {
+    const middleware = await authMiddleware.requireRole('admin');
+    await middleware(req, res, next);
+  },
+  (req, res) => {
+    res.json({ message: 'Protected Admin route' });
+  }
+);
