@@ -71,7 +71,6 @@ export class AuthMiddleware {
    * @param role - Role
    * @returns void
    */
-  // TODO: TEST
   async requireRole(role: UserRole) {
     return async (req: Request, res: Response, next: NextFunction) => {
       if (!req.user || !req.user.id) {

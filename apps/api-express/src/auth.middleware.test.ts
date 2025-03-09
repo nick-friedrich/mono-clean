@@ -113,6 +113,7 @@ describe('AuthMiddleware', () => {
     });
 
     it('should return 401 if an error is caught', async () => {
+
       // Mock the verifyToken method to throw an error
       vi.spyOn(authModule.tokenService, 'verifyToken').mockImplementationOnce(() => {
         throw new Error('Token verification failed');
@@ -142,6 +143,137 @@ describe('AuthMiddleware', () => {
 
       // Verify user was not set on request
       expect(req.user).toBeUndefined();
+    });
+  });
+
+  describe('requireRole', () => {
+
+    it('should call next if user has required role', async () => {
+      // Setup
+      const req = {
+        user: {
+          id: 'user-123',
+          email: 'test@example.com'
+        }
+      };
+
+      const jsonMock = vi.fn();
+      const statusMock = vi.fn().mockReturnThis();
+      const res = {
+        status: statusMock,
+        json: jsonMock
+      };
+
+      const next = vi.fn();
+
+      const authMiddleware = new AuthMiddleware(authModule);
+
+      // Mock the userRepository.findById method
+      const mockUser = {
+        id: 'user-123',
+        name: 'Test User',
+        email: 'test@example.com',
+        userRole: 'user' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      vi.spyOn(authModule.userRepository, 'findById').mockResolvedValueOnce(mockUser);
+
+      // Mock the hasRole method in authService
+      vi.spyOn(authModule.authService, 'hasRole').mockReturnValueOnce(true);
+
+      // Call middleware with 'user' role requirement
+      const middleware = await authMiddleware.requireRole('user');
+      await middleware(req as unknown as Request, res as unknown as Response, next);
+
+      // Verify findById was called with the correct user ID
+      expect(authModule.userRepository.findById).toHaveBeenCalledWith('user-123');
+
+      // Verify hasRole was called with correct parameters
+      expect(authModule.authService.hasRole).toHaveBeenCalledWith(mockUser, 'user');
+
+      // Verify next was called
+      expect(next).toHaveBeenCalled();
+
+      // Verify no error response was sent
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
+    });
+
+    it('should return 401 if user is not authenticated', async () => {
+      // Setup with no user in the request
+      const req = {};
+
+      const jsonMock = vi.fn();
+      const statusMock = vi.fn().mockReturnThis();
+      const res = {
+        status: statusMock,
+        json: jsonMock
+      };
+
+      const next = vi.fn();
+
+      const authMiddleware = new AuthMiddleware(authModule);
+
+      // Call middleware with any role
+      const middleware = await authMiddleware.requireRole('user');
+      await middleware(req as unknown as Request, res as unknown as Response, next);
+
+      // Verify error response was sent
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+
+      // Verify next was not called
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should return 403 if user does not have required role', async () => {
+      // Setup
+      const req = {
+        user: {
+          id: 'user-123',
+          email: 'test@example.com'
+        }
+      };
+
+      const jsonMock = vi.fn();
+      const statusMock = vi.fn().mockReturnThis();
+      const res = {
+        status: statusMock,
+        json: jsonMock
+      };
+
+      const next = vi.fn();
+
+      const authMiddleware = new AuthMiddleware(authModule);
+
+      // Mock the userRepository.findById method
+      const mockUser = {
+        id: 'user-123',
+        name: 'Test User',
+        email: 'test@example.com',
+        userRole: 'user' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      vi.spyOn(authModule.userRepository, 'findById').mockResolvedValueOnce(mockUser);
+
+      // Mock the hasRole method to return false (user doesn't have required role)
+      vi.spyOn(authModule.authService, 'hasRole').mockReturnValueOnce(false);
+
+      // Call middleware with 'admin' role requirement
+      const middleware = await authMiddleware.requireRole('admin');
+      await middleware(req as unknown as Request, res as unknown as Response, next);
+
+      // Verify hasRole was called with correct parameters
+      expect(authModule.authService.hasRole).toHaveBeenCalledWith(mockUser, 'admin');
+
+      // Verify error response was sent
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Forbidden' });
+
+      // Verify next was not called
+      expect(next).not.toHaveBeenCalled();
     });
   });
 });
