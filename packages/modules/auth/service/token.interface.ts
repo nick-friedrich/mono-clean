@@ -5,7 +5,7 @@
 export interface TokenPayload {
   userId: string;
   email?: string;
-  role?: string;
+  userRole?: string;
   [key: string]: any; // Allow for custom claims
 }
 

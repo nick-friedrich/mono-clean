@@ -66,6 +66,7 @@ describe('AuthService', () => {
         email: 'test@test.com',
         password: 'hashed-pass',
         name: 'Test User',
+        userRole: 'user',
       };
       userRepository.findByEmail.mockResolvedValue(user);
       const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
@@ -84,6 +85,7 @@ describe('AuthService', () => {
       expect(tokenService.generateRefreshToken).toHaveBeenCalledWith({
         userId: user.id,
         email: user.email,
+        userRole: user.userRole,
       });
       expect(result).toEqual({
         user: {
@@ -104,6 +106,7 @@ describe('AuthService', () => {
         email: 'norefresh@test.com',
         password: 'hashed-pass',
         name: 'No Refresh',
+        userRole: 'user',
       };
       userRepository.findByEmail.mockResolvedValue(user);
       const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
@@ -122,6 +125,7 @@ describe('AuthService', () => {
       expect(tokenService.generateToken).toHaveBeenCalledWith({
         userId: user.id,
         email: user.email,
+        userRole: user.userRole,
       });
       expect(result).toEqual({
         user: {
@@ -143,7 +147,8 @@ describe('AuthService', () => {
         id: 'new-user',
         email: 'testuser@test.com',
         password: 'hashed-pass',
-        name: 'testuser'
+        name: 'testuser',
+        userRole: 'user',
       });
       // After creation, simulate that signIn returns the new user.
       userRepository.findByEmail.mockResolvedValue({
@@ -151,6 +156,7 @@ describe('AuthService', () => {
         email: 'testuser@test.com',
         password: 'hashed-pass',
         name: 'testuser',
+        userRole: 'user',
       });
       // Stub password verification to succeed.
       const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
@@ -172,6 +178,7 @@ describe('AuthService', () => {
         email: 'testuser@test.com',
         password: expect.stringContaining('argon2'), // assuming hash includes 'argon2'
         name: 'testuser',
+        userRole: 'user',
       });
       expect(result.user.name).toBe('testuser');
       verifySpy.mockRestore();
@@ -206,6 +213,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: 'hashed-pass',
         name: 'new',
+        userRole: 'user',
       });
       // After creation, signInWithEmailAndPassword is called; simulate that:
       userRepository.findByEmail.mockResolvedValue({
@@ -213,6 +221,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: 'hashed-pass',
         name: 'new',
+        userRole: 'user',
       });
       const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
       // Assume token service supports refresh tokens here
@@ -231,6 +240,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: expect.stringContaining('argon2'),
         name: 'new',
+        userRole: 'user',
       });
       expect(result).toEqual({
         user: {
@@ -254,6 +264,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: 'hashed-pass',
         name: 'new',
+        userRole: 'user',
       });
       // After creation, signInWithEmailAndPassword is called; simulate that:
       userRepository.findByEmail.mockResolvedValue({
@@ -261,6 +272,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: 'hashed-pass',
         name: 'new',
+        userRole: 'user',
       });
       const verifySpy = vi.spyOn(PasswordService, 'verify').mockResolvedValue(true);
       // Assume token service supports refresh tokens here
@@ -279,6 +291,7 @@ describe('AuthService', () => {
         email: 'new@test.com',
         password: expect.stringContaining('argon2'),
         name: 'new',
+        userRole: 'user',
       });
 
       expect(result).toEqual({

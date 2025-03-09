@@ -9,7 +9,8 @@ describe('User Interface Tests > User Schema', () => {
       email: 'test@example.com',
       password: 'password123',
       createdAt: new Date('2025-01-01T00:00:00Z'),
-      updatedAt: new Date('2025-01-01T00:00:00Z')
+      updatedAt: new Date('2025-01-01T00:00:00Z'),
+      userRole: 'user'
     };
 
 
@@ -30,6 +31,7 @@ describe('User Interface Tests > User Schema', () => {
       id: '1',
       name: 'Test User',
       email: 'test@example.com',
+      userRole: 'user',
       createdAt: new Date('2025-01-01T00:00:00Z'),
       updatedAt: new Date('2025-01-01T00:00:00Z')
     };
@@ -45,6 +47,7 @@ describe('User Interface Tests > UserSchemaSafe', () => {
       id: '1',
       name: 'Test User',
       email: 'test@example.com',
+      userRole: 'user',
       createdAt: new Date('2025-01-01T00:00:00Z'),
       updatedAt: new Date('2025-01-01T00:00:00Z')
     };
@@ -58,7 +61,7 @@ describe('User Interface Tests > UserSchemaSafe', () => {
       id: '1',
       name: 'Test User',
       email: 'test@example.com',
-      password: 'password123',
+      userRole: 'user',
       createdAt: new Date('2025-01-01T00:00:00Z'),
       updatedAt: new Date('2025-01-01T00:00:00Z')
     };
@@ -71,6 +74,7 @@ describe('User Interface Tests > UserSchemaSafe', () => {
         id: '1',
         name: 'Test User',
         email: 'test@example.com',
+        userRole: 'user',
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date)
       });

@@ -2,7 +2,7 @@ import { db } from "@shared/db-drizzle-pg";
 import { usersTable } from "@shared/db-drizzle-pg/src/schema/users";
 import { eq } from "drizzle-orm";
 import { UserError, UserRepository } from "../interface";
-import { User, UserSafe, UserUpdateInput } from "../types";
+import { User, UserRole, UserSafe, UserUpdateInput } from "../types";
 
 /**
  * User repository implementation for Drizzle PostgreSQL
@@ -27,8 +27,10 @@ export class UserDrizzleRepository extends UserRepository {
       name: user.name,
       email: user.email,
       password: user.password || undefined,
+      userRole: user.userRole as UserRole,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
+      deletedAt: user.deleted_at || undefined,
     };
   }
 
@@ -51,8 +53,10 @@ export class UserDrizzleRepository extends UserRepository {
       name: user.name,
       email: user.email,
       password: user.password || undefined,
+      userRole: user.userRole as UserRole,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
+      deletedAt: user.deleted_at || undefined,
     };
   }
 
@@ -70,6 +74,7 @@ export class UserDrizzleRepository extends UserRepository {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
+      userRole: usersTable.userRole,
       created_at: usersTable.created_at,
       updated_at: usersTable.updated_at,
     })
@@ -85,6 +90,7 @@ export class UserDrizzleRepository extends UserRepository {
       createdAt: newUser[0].created_at,
       updatedAt: newUser[0].updated_at,
       deletedAt: undefined,
+      userRole: newUser[0].userRole as UserRole,
     };
   }
 
@@ -101,6 +107,7 @@ export class UserDrizzleRepository extends UserRepository {
       id: usersTable.id,
       name: usersTable.name,
       email: usersTable.email,
+      userRole: usersTable.userRole,
       created_at: usersTable.created_at,
       updated_at: usersTable.updated_at,
     })
@@ -116,6 +123,7 @@ export class UserDrizzleRepository extends UserRepository {
       createdAt: updatedUser[0].created_at,
       updatedAt: updatedUser[0].updated_at,
       deletedAt: undefined,
+      userRole: updatedUser[0].userRole as UserRole,
     };
   }
 

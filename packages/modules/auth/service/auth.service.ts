@@ -61,6 +61,7 @@ export class AuthService {
       const refreshResult = await this.tokenService.generateRefreshToken({
         userId: user.id,
         email: user.email,
+        userRole: user.userRole,
         // Add any additional claims you need
       });
 
@@ -78,7 +79,8 @@ export class AuthService {
       // Simple token generation without refresh
       tokenResult = await this.tokenService.generateToken({
         userId: user.id,
-        email: user.email
+        email: user.email,
+        userRole: user.userRole,
       });
 
       return {
@@ -121,7 +123,8 @@ export class AuthService {
     const newUser = await this.userRepository.create({
       email,
       password: hashedPassword,
-      name: name
+      name: name,
+      userRole: 'user'
     });
 
     // Sign in the new user (reuse logic)

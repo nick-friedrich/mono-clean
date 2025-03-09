@@ -1,14 +1,31 @@
 import { z } from 'zod';
 
 /**
+ * User role
+ */
+export const UserRoleSchema = z.enum([
+  'admin',
+  'user',
+  'guest',
+  'banned',
+  'moderator',
+]);
+
+/**
+ * Type of the user role
+ */
+export type UserRole = z.infer<typeof UserRoleSchema>;
+
+/**
  * User with all data
  */
 export const UserSchema = z
   .object({
     id: z.string(),
-    email: z.string().email(),
     name: z.string(),
+    email: z.string().email(),
     password: z.string().optional(),
+    userRole: UserRoleSchema.default('user'),
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().optional(),
@@ -32,7 +49,12 @@ export type UserSafe = z.infer<typeof UserSchemaSafe>;
 /**
  * User create input
  */
-export const UserCreateInputSchema = UserSchema.omit({ id: true, createdAt: true, updatedAt: true, deletedAt: true });
+export const UserCreateInputSchema = UserSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+})
 
 /**
  * Type of the user create input

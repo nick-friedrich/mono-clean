@@ -10,6 +10,7 @@ const mockUsers = [
     name: 'Test User',
     email: 'test@example.com',
     password: 'password123',
+    userRole: 'user',
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -18,6 +19,7 @@ const mockUsers = [
     name: 'Another User',
     email: 'another@example.com',
     password: 'anotherpassword',
+    userRole: 'user',
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -26,6 +28,7 @@ const mockUsers = [
     name: 'User No Password',
     email: 'nopassword@example.com',
     password: null,
+    userRole: 'user',
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -109,7 +112,8 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
+        userRole: 'user'
       });
     });
 
@@ -124,7 +128,8 @@ describe('UserDrizzleRepository', () => {
         id: '3',
         name: 'User No Password',
         email: 'nopassword@example.com',
-        password: undefined
+        password: undefined,
+        userRole: 'user'
       });
     });
 
@@ -157,7 +162,8 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
+        userRole: 'user'
       });
     });
 
@@ -171,7 +177,8 @@ describe('UserDrizzleRepository', () => {
         id: '3',
         name: 'User No Password',
         email: 'nopassword@example.com',
-        password: undefined
+        password: undefined,
+        userRole: 'user'
       });
     });
 
@@ -197,6 +204,7 @@ describe('UserDrizzleRepository', () => {
         name: 'New User',
         email: 'new@example.com',
         password: 'newpassword',
+        userRole: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       }]);
@@ -206,6 +214,7 @@ describe('UserDrizzleRepository', () => {
         name: 'New User',
         email: 'new@example.com',
         password: 'newpassword',
+        userRole: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -225,7 +234,8 @@ describe('UserDrizzleRepository', () => {
       expect(result).toEqual({
         id: '3',
         name: 'New User',
-        email: 'new@example.com'
+        email: 'new@example.com',
+        userRole: 'user'
       });
       expect(result).not.toHaveProperty('password');
     });
@@ -235,7 +245,8 @@ describe('UserDrizzleRepository', () => {
       returningMock.mockResolvedValueOnce([{
         id: '3',
         name: 'New User',
-        email: 'new@example.com'
+        email: 'new@example.com',
+        userRole: 'user',
       }]);
 
       const newUser: User = {
@@ -243,6 +254,7 @@ describe('UserDrizzleRepository', () => {
         name: 'New User',
         email: 'new@example.com',
         // No password property provided
+        userRole: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -261,7 +273,8 @@ describe('UserDrizzleRepository', () => {
       expect(result).toEqual({
         id: '3',
         name: 'New User',
-        email: 'new@example.com'
+        email: 'new@example.com',
+        userRole: 'user'
       });
     });
 
@@ -282,6 +295,7 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
+        userRole: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       }]);
@@ -290,6 +304,7 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
+        userRole: 'user',
         password: 'updatedpassword',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -312,7 +327,8 @@ describe('UserDrizzleRepository', () => {
       expect(result).toEqual({
         id: '1',
         name: 'Updated User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        userRole: 'user'
       });
       expect(result).not.toHaveProperty('password');
     });
@@ -323,6 +339,7 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
+        userRole: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
       }]);
@@ -331,6 +348,7 @@ describe('UserDrizzleRepository', () => {
         id: '1',
         name: 'Updated User',
         email: 'test@example.com',
+        userRole: 'user',
         // No password provided
         createdAt: new Date(),
         updatedAt: new Date()
@@ -350,7 +368,8 @@ describe('UserDrizzleRepository', () => {
       expect(result).toEqual({
         id: '1',
         name: 'Updated User',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        userRole: 'user'
       });
     });
 

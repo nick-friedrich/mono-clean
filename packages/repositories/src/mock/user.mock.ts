@@ -49,6 +49,8 @@ export class UserMockRepository extends UserRepository {
 
     const newUser: User = {
       id: uuidv4(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       ...userData
     };
 
@@ -63,7 +65,11 @@ export class UserMockRepository extends UserRepository {
     }
 
     // If email is being changed, check it doesn't conflict
-    if (user.email && user.email !== this.users[index].email) {
+    if (user.email
+      && this.users[index]
+      && user.email !== this.users[index].email
+      && user.email !== undefined
+    ) {
       const existingUser = await this.findByEmail(user.email);
       if (existingUser) {
         throw new Error(`User with email ${user.email} already exists`);
