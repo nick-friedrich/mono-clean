@@ -17,6 +17,30 @@ export const UserRoleSchema = z.enum([
 export type UserRole = z.infer<typeof UserRoleSchema>;
 
 /**
+ * User Role with numeric values representing hierarchy
+ * Higher values indicate higher privileges
+ */
+export const UserRoleHierarchy = {
+  banned: -1,
+  guest: 0,
+  user: 10,
+  moderator: 20,
+  admin: 30,
+} as const;
+
+/**
+ * Type guard to ensure UserRoleHierarchy keys match UserRoleSchema values
+ * This will cause a type error if the keys in UserRoleHierarchy don't match the values in UserRoleSchema
+ */
+type EnsureUserRoleMatch = {
+  [K in UserRole]: typeof UserRoleHierarchy[K];
+};
+
+// This constant isn't used at runtime, but ensures type safety at compile time
+const _userRoleTypeCheck: EnsureUserRoleMatch = UserRoleHierarchy;
+
+
+/**
  * User with all data
  */
 export const UserSchema = z
@@ -72,4 +96,5 @@ export const UserUpdateInputSchema = UserSchema.partial().extend({
  * Type of the user update input
  */
 export type UserUpdateInput = z.infer<typeof UserUpdateInputSchema>;
+
 

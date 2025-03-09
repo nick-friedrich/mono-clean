@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthModule } from '@shared/module';
+import { UserRole } from '@shared/repository';
 
 declare module 'express' {
   interface Request {
@@ -14,10 +15,21 @@ declare module 'express' {
 export class AuthMiddleware {
   private authModule: AuthModule;
 
+  /**
+   * Constructor
+   * @param authModule - Auth module
+   */
   constructor(authModule: AuthModule) {
     this.authModule = authModule;
   }
 
+  /**
+   * Verify token
+   * @param req - Request
+   * @param res - Response
+   * @param next - Next function
+   * @returns void
+   */
   async verifyToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 
@@ -54,12 +66,22 @@ export class AuthMiddleware {
     }
   }
 
-  // async requireRole(role: string) {
-  //   return (req: Request, res: Response, next: NextFunction) => {
-  //     if (!req.user || req.user.role !== role) {
-  //       return res.status(403).json({ message: 'Forbidden' });
-  //     }
-  //     next();
-  //   };
-  // }
+  /**
+   * Require role
+   * @param role - Role
+   * @returns void
+   */
+  // TODO: TEST
+  async requireRole(role: UserRole) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      const user = await this.authModule.userRepository.findById(req.user.id);
+      if (!user || !this.authModule.authService.hasRole(user, role)) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      next();
+    };
+  }
 }

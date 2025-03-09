@@ -44,6 +44,7 @@ export class AuthModule {
 
   readonly authService: AuthService;
   readonly tokenService: TokenService;
+  userRepository: UserRepository;
 
   private constructor(
     config: AuthModuleConfig,
@@ -53,6 +54,8 @@ export class AuthModule {
   ) {
     // Initialize token service
     this.tokenService = tokenService || new JwtTokenService(config.jwt);
+
+    this.userRepository = userRepository;
 
     // Initialize auth service with token service
     this.authService = new AuthService(userRepository, sessionRepository, this.tokenService);

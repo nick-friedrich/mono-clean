@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuthService, AuthServiceError, SignInResult } from './auth.service';
 import { PasswordService } from './password.service';
+import { User } from '@shared/repository';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -345,6 +346,28 @@ describe('AuthService', () => {
       const result = await authService.signOut('some-session-id');
       expect(result).toEqual({ success: true });
       expect(sessionRepository.delete).toHaveBeenCalledWith('some-session-id');
+    });
+  });
+
+  describe('hasRole', () => {
+    it('should return true if user has sufficient role', () => {
+      const user: User = {
+        id: '1',
+        email: 'test@test.com',
+        password: 'password',
+        userRole: 'admin',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'Test User'
+      };
+      const result = authService.hasRole(user, 'admin');
+      expect(result).toBe(true);
+    });
+
+    it('should return false if user has insufficient role', () => {
+      const user: User = { id: '1', email: 'test@test.com', password: 'password', userRole: 'user', createdAt: new Date(), updatedAt: new Date(), name: 'Test User' };
+      const result = authService.hasRole(user, 'admin');
+      expect(result).toBe(false);
     });
   });
 });

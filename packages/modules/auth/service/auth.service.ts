@@ -1,5 +1,5 @@
 // packages/modules/auth/service/auth.service.ts
-import { SessionRepository, UserRepository } from "@shared/repository";
+import { SessionRepository, User, UserRepository, UserRole, UserRoleHierarchy } from "@shared/repository";
 import { TokenService, TokenPayload } from "./token.interface";
 import { PasswordService } from "./password.service";
 
@@ -167,6 +167,16 @@ export class AuthService {
     await this.sessionRepository.delete(sessionId)
 
     return { success: true };
+  }
+
+  /**
+   * Checks if a user has sufficient role
+   * @param user - User
+   * @param requiredRole - Required role
+   * @returns True if the user has the required role, false otherwise
+   */
+  hasRole(user: User, requiredRole: UserRole) {
+    return UserRoleHierarchy[user.userRole] >= UserRoleHierarchy[requiredRole];
   }
 }
 
